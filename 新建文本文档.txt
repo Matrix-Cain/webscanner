@@ -1,1 +1,0 @@
-scan url https://www.nn.ci/archives/start.html
