@@ -20,7 +20,7 @@ var scanUrlCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Scanning for single url..")
 		targetURL := args[0]
-		utility.LoadSingleUrl(targetURL)
+		utility.LoadUrl(false, targetURL, 1, saveResult, saveFileName)
 	},
 }
 
@@ -30,6 +30,7 @@ var scanFileCmd = &cobra.Command{
 	Long:  "Scan for multiple urls by importing urls from file",
 	Args:  cobra.RangeArgs(1, 1),
 	Run: func(cmd *cobra.Command, args []string) {
-		utility.LoadMultipleUrl(args[0], threadNum, saveResult)
+		fileName := args[0]
+		utility.LoadUrl(true, fileName, threadNum, saveResult, saveFileName)
 	},
 }

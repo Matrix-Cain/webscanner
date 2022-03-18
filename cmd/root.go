@@ -18,11 +18,16 @@ _  __/  / /_/ /_  __/  / /_/ /
 }
 var threadNum int
 var saveResult bool
+var saveFileName string
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
 
+	scanUrlCmd.Flags().StringVarP(&saveFileName, "name", "n", "", "Naming results file")
+	scanUrlCmd.Flags().BoolVarP(&saveResult, "save", "s", false, "Saving results to a file")
 	scanCmd.AddCommand(scanUrlCmd)
+
+	scanFileCmd.Flags().StringVarP(&saveFileName, "name", "n", "", "Naming results file")
 	scanFileCmd.Flags().IntVarP(&threadNum, "thread", "t", 10, "Specify the worker pool size")
 	scanFileCmd.Flags().BoolVarP(&saveResult, "save", "s", false, "Saving results to a file")
 	scanCmd.AddCommand(scanFileCmd)
