@@ -247,7 +247,7 @@ func checkSingleUrl(url string) (ProcessedResponse, error) {
 		}
 	}(resp.Body)
 
-	return ProcessedResponse{CertOption: resp.TLS, Header: resp.Header, Body: decodeHTMLBody(resp.Body, "")}, nil
+	return ProcessedResponse{CertOption: resp.TLS, Header: resp.Header, Body: decodeHTMLBody(resp, "")}, nil
 }
 
 func routineWork(urlList []string, poolSize int) {
@@ -320,8 +320,15 @@ func detectContentCharset(r *bufio.Reader) string {
 
 // DecodeHTMLBody returns an decoding reader of the html Body for the specified `charset`
 // If `charset` is empty, DecodeHTMLBody tries to guess the encoding from the content
-func decodeHTMLBody(body io.Reader, charset string) string {
-	r := bufio.NewReader(body)
+func decodeHTMLBody(resp *http.Response, charset string) string {
+	rule := regexp.MustCompile(`charset=(.*)`)
+	contentType := resp.Header.Get("content-type") // try to use header
+	charsetDetect := rule.FindStringSubmatch(contentType)
+	if len(charsetDetect) == 2 {
+		charset = charsetDetect[1]
+	}
+	body := io.Reader(resp.Body)
+	r := bufio.NewReader(resp.Body)
 	if charset == "" {
 		charset = detectContentCharset(r)
 	}
@@ -333,7 +340,7 @@ func decodeHTMLBody(body io.Reader, charset string) string {
 	if name, _ := htmlindex.Name(e); name != "utf-8" {
 		body = transform.NewReader(r, e.NewDecoder())
 	}
-	bodyContent, err := io.ReadAll(r)
+	bodyContent, err := io.ReadAll(body)
 	if err != nil {
 		log.Println(err)
 		return ""
